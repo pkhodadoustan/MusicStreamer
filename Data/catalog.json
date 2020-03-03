@@ -1,0 +1,53 @@
+[
+  {
+    "remoteMethod": "findSongById",
+    "objectName": "SongManager",
+    "param":
+      {
+        "id": "String"
+      },
+    "return": "SongRecord"
+  },
+  
+  {
+    "remoteMethod": "findSongByArtist",
+    "objectName": "SongManager",
+    "param":
+      {
+        "artist": "String"
+      },
+    "return": "List<SongRecord>"
+  },
+  
+  {
+    "remoteMethod": "findSongByTitle",
+    "objectName": "SongManager",
+    "param":
+      {
+        "Title": "String"
+      },
+    "return": "List<SongRecord>"     
+  },
+  
+  {
+    "remoteMethod": "getSongChunk",
+    "objectName": "SongDispatcher",
+    "param":
+    {
+      "key": "String",
+      "fragment": "String"
+    },
+    "return": "String"  
+  },
+  
+  {
+    "remoteMethod": "getFileSize",
+    "objectName": "SongDispatcher",
+    "param":
+    {
+      "key": "String"
+    },
+    "return": "Integer" 
+  }
+  
+]

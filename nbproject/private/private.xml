@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/D:/compSci/CSULB/Spring2020/CECS327/MusicStreaming/Data/users/12345.json</file>
+            <file>file:/D:/compSci/CSULB/Spring2020/CECS327/MusicStreaming/src/musicstreamer/MusicStreamer.java</file>
+            <file>file:/D:/compSci/CSULB/Spring2020/CECS327/MusicStreaming/src/musicstreamer/User.java</file>
+            <file>file:/D:/compSci/CSULB/Spring2020/CECS327/MusicStreaming/src/musicstreamer/ClientCommunicationModule.java</file>
+            <file>file:/D:/compSci/CSULB/Spring2020/CECS327/MusicStreaming/src/musicstreamer/CECS327InputStream.java</file>
+            <file>file:/D:/compSci/CSULB/Spring2020/CECS327/MusicStreaming/src/musicstreamer/SongManager.java</file>
+            <file>file:/D:/compSci/CSULB/Spring2020/CECS327/MusicStreaming/src/musicstreamer/ServerCommunicationModule.java</file>
+            <file>file:/D:/compSci/CSULB/Spring2020/CECS327/MusicStreaming/src/musicstreamer/SongDispatcher.java</file>
+            <file>file:/D:/compSci/CSULB/Spring2020/CECS327/MusicStreaming/src/musicstreamer/CECS327RemoteInputStream.java</file>
+            <file>file:/D:/compSci/CSULB/Spring2020/CECS327/MusicStreaming/src/musicstreamer/ServerDispatcher.java</file>
+            <file>file:/D:/compSci/CSULB/Spring2020/CECS327/MusicStreaming/src/musicstreamer/SongRecord.java</file>
+            <file>file:/D:/compSci/CSULB/Spring2020/CECS327/MusicStreaming/src/UI/UserWin.java</file>
+            <file>file:/D:/compSci/CSULB/Spring2020/CECS327/MusicStreaming/src/UI/Login.java</file>
+            <file>file:/D:/compSci/CSULB/Spring2020/CECS327/MusicStreaming/Data/catalog.json</file>
+            <file>file:/D:/compSci/CSULB/Spring2020/CECS327/MusicStreaming/src/musicstreamer/ClientProxy.java</file>
+        </group>
+    </open-files>
+</project-private>
