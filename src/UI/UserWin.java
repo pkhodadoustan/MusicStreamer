@@ -6,25 +6,19 @@
 package UI;
 
 import com.google.gson.Gson;
-import com.sun.javafx.scene.control.skin.VirtualFlow;
 import javax.swing.DefaultListModel;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.io.InputStream;
-import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.Player;
-import musicstreamer.ClientProxy;
-import musicstreamer.MusicStreamer;
-import musicstreamer.SongManager;
+import Client.ClientProxy;
 import musicstreamer.SongRecord;
 import musicstreamer.User;
 import com.google.gson.JsonObject;
 import java.util.Arrays;
-import musicstreamer.CECS327RemoteInputStream;
+import Client.CECS327RemoteInputStream;
 
 /**
  *

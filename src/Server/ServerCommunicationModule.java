@@ -3,8 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package musicstreamer;
+package Server;
 
+/**
+ *
+ * @author 018639476
+ */
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -13,6 +17,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import musicstreamer.SongManager;
 
 /**
  *

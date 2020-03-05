@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package musicstreamer;
+package Client;
 
 import com.sun.javafx.scene.control.skin.VirtualFlow;
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ import java.util.Arrays;
 
 /**
  *
- * @author 018639476
+ * @author Pardis Khodadoustan
  */
 public class ClientProxy{
     ClientCommunicationModule cm;

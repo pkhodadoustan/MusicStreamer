@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package musicstreamer;
+package Client;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -14,7 +14,7 @@ import java.net.UnknownHostException;
 
 /**
  *
- * @author 018639476
+ * @author Pardis Khodadoustan
  */
 public class ClientCommunicationModule{
     //Assume Call Semantic is "Maybe"

@@ -3,12 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package musicstreamer;
+package Server;
 
 /**
 * The Dispatcher implements DispatcherInterface. 
 *
 * @author  Oscar Morales-Ponce
+* @Pardis Khodadoustan
 * @version 0.15
 * @since   02-11-2019 
 */
@@ -161,32 +162,5 @@ public class ServerDispatcher implements DispatcherInterface{
     {
         ListOfObjects.put(objectName, remoteMethod);
     }
-    
-    //////////////////
-    /* Just for Testing */
-    //////////////////
-/*    public static void main(String[] args) {
-        // Instance of the Dispatcher
-        ServerDispatcher dispatcher = new ServerDispatcher();
-        // Instance of the services that te dispatcher can handle
-        SongDispatcher songDispatcher = new SongDispatcher();
-        
-        dispatcher.registerObject(songDispatcher, "SongServices");  
-    
-        // Testing  the dispatcher function
-        // First we read the request. In the final implementation the jsonRequest
-        // is obtained from the communication module
-        try {
-            String jsonRequest = new String(Files.readAllBytes(Paths.get("./getSongChunk.json")));
-            String ret = dispatcher.dispatch(jsonRequest);
-            System.out.println(ret);
-
-            //System.out.println(jsonRequest);
-        } catch (Exception e)
-        {
-            System.out.println(e);
-        }
-        
-    } 
-*/
+ 
 }
