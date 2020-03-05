@@ -5,7 +5,9 @@
  */
 package UI;
 
+import Client.ClientProxy;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
 import java.io.FileReader;
 import musicstreamer.SongRecord;
@@ -17,11 +19,13 @@ import musicstreamer.User;
  */
 public class Login extends javax.swing.JFrame {
 
+    ClientProxy proxy;
     /**
      * Creates new form Login
      */
-    public Login() {
+    public Login(ClientProxy proxy) {
         initComponents();
+        this.proxy = proxy;
     }
 
     /**
@@ -105,12 +109,15 @@ public class Login extends javax.swing.JFrame {
         //make user object from json file in data/users folder
         try{
             Gson gson = new Gson();
-            JsonReader reader = new JsonReader(new FileReader("data\\users\\"+username+".json"));
-            User user = gson.fromJson(reader, User.class);
+            //getting the user for the above username from the server
+            JsonObject jsonUser = proxy.synchExecution("getUser", username);
+            User user = gson.fromJson(jsonUser.get("ret").getAsString(), User.class);
+            
+            System.out.println("testing getUser: "+ user.getfName());
             System.out.println(user.getUsername()+" "+user.getPassword());
             if(username.equals(user.getUsername()) && password.equals(user.getPassword()))
             {
-                UserWin userWin = new UserWin(user);
+                UserWin userWin = new UserWin(user, proxy);
                 userWin.setVisible(true);
             }
             else
@@ -124,41 +131,6 @@ public class Login extends javax.swing.JFrame {
         }
         
     }//GEN-LAST:event_LoginBtnMouseClicked
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Login().setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton LoginBtn;

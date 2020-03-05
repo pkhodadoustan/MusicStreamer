@@ -11,6 +11,8 @@ import com.google.gson.stream.JsonReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -148,5 +150,23 @@ public class SongManager {
         //Gson gson = new Gson();
        // String jsonSongRecord = gson.toJson(songRecord);
         return songRecord;
+    }
+    
+    public User getUser (String username)
+    {
+        try {
+            Gson gson = new Gson();
+            JsonReader reader = new JsonReader(new FileReader("data\\users\\"+username+".json"));
+            User user = gson.fromJson(reader, User.class);
+            return user;
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(SongManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    
+    public Boolean saveUser(User user)
+    {
+        return user.saveUser();
     }
 }

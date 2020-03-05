@@ -106,6 +106,7 @@ public class ServerDispatcher implements DispatcherInterface{
             // Prepare the return
             Class returnType = method.getReturnType();
             String ret = "";
+            Gson gson = new Gson();
             switch (returnType.getCanonicalName())
                 {
                     case "java.lang.Long":
@@ -122,14 +123,17 @@ public class ServerDispatcher implements DispatcherInterface{
                         ret = method.invoke(object, parameter).toString();
                         break;
                     case "java.util.List":
-                        Gson gson = new Gson();
+                        
+                        ret = gson.toJson(method.invoke(object, parameter));
+                        System.out.println("ret in ServerDispatcher: "+ret);
+                        break;
+                    case "musicstreamer.User":
                         ret = gson.toJson(method.invoke(object, parameter));
                         System.out.println("ret in ServerDispatcher: "+ret);
                         break;
                 }
                 jsonReturn.addProperty("ret", ret);
                 System.out.println("in server dispatcher, jsonReturn: "+jsonReturn.toString());
-                //returnMsg = ret;
    
         } catch ( IllegalAccessException e)
         {

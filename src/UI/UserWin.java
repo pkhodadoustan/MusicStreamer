@@ -30,12 +30,10 @@ class MyPlayer implements Runnable
 {
     Player player;
     ClientProxy proxy;
-    //recieve a javazoom.jl.player
+    
     public MyPlayer(String songRecordId, ClientProxy proxy) {
         InputStream in = null;
         try {
-            //first make the proxy 
-            //this.proxy = new ClientProxy();
             this.proxy = proxy;
             
             // It uses CECS327RemoteInputStream as InputStream to play the song
@@ -74,22 +72,21 @@ public class UserWin extends javax.swing.JFrame {
     String currentRecordId;
     Thread thread;
     User user;
-    ClientProxy sm;
+    ClientProxy proxy;
     Gson gson;
 
     /**
      * Creates new form UserWin
      */
-    public UserWin(User user) {
+    public UserWin(User user, ClientProxy proxy) {
         initComponents();
+        this.proxy = proxy;
         gson = new Gson();
         currentRecordId = "";
         this.user = user;
         welcomeLabel.setText("welcome "+user.getfName());
-        //userPlaylist = new ArrayList<>();
+        
         try{
-            //Making an instance of SongManager
-            sm = new ClientProxy();
             //Initialize combo box
             for(int i  = 0; i<user.getPlayList().size(); i++)
             {
@@ -104,7 +101,7 @@ public class UserWin extends javax.swing.JFrame {
             {
                 for(int i = 0; i<user.getPlayList().get(0).size(); i++)
                 {
-                    JsonObject jsonSong = sm.synchExecution("findSongById", user.getPlayList().get(0).get(i));
+                    JsonObject jsonSong = proxy.synchExecution("findSongById", user.getPlayList().get(0).get(i));
                     System.out.println("button clicked: "+jsonSong.toString());
                     SongRecord songRcord = gson.fromJson(jsonSong.get("ret").getAsString(), SongRecord.class);
                     listOfFavoriteSongs.addElement(songRcord.getSong().getTitle()+ " _ " +
@@ -437,7 +434,7 @@ public class UserWin extends javax.swing.JFrame {
                 List <SongRecord> recordList;
                 try {
                     //find a list of songs by artist name
-                    JsonObject jsonSongListByArtist = sm.synchExecution("findSongByArtist", artistText);
+                    JsonObject jsonSongListByArtist = proxy.synchExecution("findSongByArtist", artistText);
                     SongRecord[] SongListByArtistArr = gson.fromJson(jsonSongListByArtist.get("ret").getAsString(), SongRecord[].class);
                     recordList = Arrays.asList(SongListByArtistArr);
                     
@@ -460,7 +457,7 @@ public class UserWin extends javax.swing.JFrame {
                 List <SongRecord> recordList;
                 try {
                     //find a list of songs by title
-                    JsonObject jsonSongListByTitle = sm.synchExecution("findSongByTitle", titleText);
+                    JsonObject jsonSongListByTitle = proxy.synchExecution("findSongByTitle", titleText);
                     SongRecord[] SongListByTitleArr = gson.fromJson(jsonSongListByTitle.get("ret").getAsString(), SongRecord[].class);
                     recordList = Arrays.asList(SongListByTitleArr);
                     
@@ -496,7 +493,7 @@ public class UserWin extends javax.swing.JFrame {
             if(currentRecordId!=null && !currentRecordId.equals(""))
             {
                 System.out.println("in userWin play button, id is: " + currentRecordId);
-                MyPlayer myPlayer = new MyPlayer(currentRecordId, sm);
+                MyPlayer myPlayer = new MyPlayer(currentRecordId, proxy);
                 thread = new Thread(myPlayer);
                 thread.start();
             }
@@ -535,14 +532,14 @@ public class UserWin extends javax.swing.JFrame {
             user.addSongToPlayList(id, selectedPlaylistIndex);
         }  
         
-        //displaying son info in playlist
+        //displaying song info in playlist for each song id record in the corresponding playlist
         DefaultListModel<String> listOfFavoriteSongs = new DefaultListModel<>();
         
         for(int i = 0; i<user.getPlayList().get(selectedPlaylistIndex).size(); i++)
         {
             try {
                 String songId = user.getPlayList().get(selectedPlaylistIndex).get(i);
-                JsonObject jsonSong = sm.synchExecution("findSongById", songId);
+                JsonObject jsonSong = proxy.synchExecution("findSongById", songId);
                 System.out.println("button clicked: "+jsonSong.toString());
                 SongRecord songRcord = gson.fromJson(jsonSong.get("ret").getAsString(), SongRecord.class);
                 listOfFavoriteSongs.addElement(songRcord.getSong().getTitle()+ " _ " +
@@ -573,7 +570,7 @@ public class UserWin extends javax.swing.JFrame {
             currentRecordId = attrs[1];
             //SongRecord sr = sm.findSongById(currentRecordId);
             
-            JsonObject jsonSong = sm.synchExecution("findSongById", currentRecordId);
+            JsonObject jsonSong = proxy.synchExecution("findSongById", currentRecordId);
             SongRecord sr = gson.fromJson(jsonSong.get("ret").getAsString(), SongRecord.class);
             songNameLabel.setText(sr.getSong().getTitle());
             artistLabel.setText(sr.getArtist().getName());
@@ -593,7 +590,7 @@ public class UserWin extends javax.swing.JFrame {
             String songarrts = playlist_UI.getSelectedValue();
             String[] attrs = songarrts.split(" _ ");
             currentRecordId = attrs[2];
-            JsonObject jsonSong = sm.synchExecution("findSongById", currentRecordId);
+            JsonObject jsonSong = proxy.synchExecution("findSongById", currentRecordId);
             SongRecord sr = gson.fromJson(jsonSong.get("ret").getAsString(), SongRecord.class);
             songNameLabel.setText(sr.getSong().getTitle());
             artistLabel.setText(sr.getArtist().getName());
@@ -611,42 +608,6 @@ public class UserWin extends javax.swing.JFrame {
         int index = PlayListComboBox.getSelectedIndex();
         user.deletePlaylist(index);
         PlayListComboBox.removeItemAt(index);
-        //PlayListComboBox.removeAllItems();
-/*        
-        //initialize the combobox
-        //userPlaylist = new ArrayList<>();
-        try{
-            //Initialize combo box
-            for(int i  = 0; i<user.getPlayList().size(); i++)
-            {
-                PlayListComboBox.addItem("play List " + i );
-            }
-            
-            //initialize user playlist to content of playList 0 (index = 0) of the user if exists.
-            //String list of title + srtist name + id of user favorite playlist
-            DefaultListModel<String> listOfFavoriteSongs = new DefaultListModel<>();
-            
-            if(user.getPlayList().size()>0)
-            {
-                for(int i = 0; i<user.getPlayList().get(0).size(); i++)
-                {
-                    JsonObject jsonSong = sm.synchExecution("findSongById", user.getPlayList().get(0).get(i));
-                    System.out.println("button clicked: "+jsonSong.toString());
-                    SongRecord songRcord = gson.fromJson(jsonSong.get("ret").getAsString(), SongRecord.class);
-                    listOfFavoriteSongs.addElement(songRcord.getSong().getTitle()+ " _ " +
-                        songRcord.getArtist().getName()+" _ "+
-                        songRcord.getSong().getId());
-                }
-            }
-            
-            playlist_UI.setModel(listOfFavoriteSongs);
-
-        }
-        catch(Exception e)
-        {
-            System.out.println(e.getMessage());
-        }
-*/        
     }//GEN-LAST:event_DeletFromPlaylistBtnMouseClicked
 
     private void PlayListComboBoxMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PlayListComboBoxMouseClicked
@@ -671,7 +632,7 @@ public class UserWin extends javax.swing.JFrame {
                 for(int i = 0; i<user.getPlayList().get(currentItemIndex).size(); i++)
                 {
                     try {
-                        JsonObject jsonSong = sm.synchExecution("findSongById", user.getPlayList().get(currentItemIndex).get(i));
+                        JsonObject jsonSong = proxy.synchExecution("findSongById", user.getPlayList().get(currentItemIndex).get(i));
                         System.out.println("button clicked: "+jsonSong.toString());
                         SongRecord songRcord = gson.fromJson(jsonSong.get("ret").getAsString(), SongRecord.class);
                         listOfFavoriteSongs.addElement(songRcord.getSong().getTitle()+ " _ " +

@@ -20,6 +20,16 @@
   },
   
   {
+    "remoteMethod": "getUser",
+    "objectName": "SongManager",
+    "param":
+      {
+          "username": "String"
+      },
+    "return": "User"
+  },
+
+  {
     "remoteMethod": "findSongByTitle",
     "objectName": "SongManager",
     "param":
