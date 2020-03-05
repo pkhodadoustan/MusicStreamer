@@ -47,7 +47,7 @@ public class ClientProxy{
        for(JsonObject method: catalogMethods)
        {
            String catalogRemoteMethod = method.get("remoteMethod").getAsString();
-           //System.out.println("catalog mthod: "+catalogRemoteMethod+", and called method: "+remoteMethod);
+           System.out.println("catalog mthod: "+catalogRemoteMethod+", and called method: "+remoteMethod);
            if(catalogRemoteMethod.equals(remoteMethod))
            {
                JsonObject jsonParam = new JsonObject(); //to hold the parameters of the remote methos
@@ -58,7 +58,7 @@ public class ClientProxy{
                for(Object arg: param)
                {
                    jsonParam.addProperty("param"+i, arg.toString());
-                   //System.out.println("in sync param: "+jsonParam.toString());
+                   System.out.println("in sync param: "+jsonParam.toString());
                    i++;
                }
                jsonMethod.add("param", jsonParam);

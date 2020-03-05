@@ -554,12 +554,19 @@ public class UserWin extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1MouseClicked
 
     private void savePlaylistBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_savePlaylistBtnMouseClicked
-        // TODO add your handling code here:
-        boolean saved = user.saveUser();
-        if(saved)
-            System.out.println("saved user playlist.");
-        else
-            System.out.println("could not save playlist!");
+        try {
+            // TODO add your handling code here:
+            System.out.println("Saving the user changes to database on server ...");
+            JsonObject jsonBoolSaved = proxy.synchExecution("saveUser", user);
+            Boolean saved = gson.fromJson(jsonBoolSaved.get("ret").getAsString(), Boolean.class);
+            if(saved)
+                System.out.println("Successfully saved user playlist.");
+            else
+                System.out.println("Error! Could not save playlist!");
+        } catch (IOException ex) {
+            Logger.getLogger(UserWin.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Error! Could not save playlist: "+ex.getMessage());
+        }
     }//GEN-LAST:event_savePlaylistBtnMouseClicked
 
     private void SongListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_SongListMouseClicked

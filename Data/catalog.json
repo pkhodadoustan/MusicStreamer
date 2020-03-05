@@ -6,7 +6,8 @@
       {
         "id": "String"
       },
-    "return": "SongRecord"
+    "return": "SongRecord",
+    "semantics": "Maybe"
   },
   
   {
@@ -16,7 +17,8 @@
       {
         "artist": "String"
       },
-    "return": "List<SongRecord>"
+    "return": "List<SongRecord>",
+    "semantics": "Maybe"
   },
   
   {
@@ -26,7 +28,19 @@
       {
           "username": "String"
       },
-    "return": "User"
+    "return": "User",
+    "semantics": "Maybe"
+  },
+  
+  {
+    "remoteMethod": "saveUser",
+    "objectName": "SongManager",
+    "param":
+      {
+          "jsonUser": "String"
+      },
+    "return": "Boolean",
+    "semantics": "Maybe"
   },
 
   {
@@ -36,7 +50,8 @@
       {
         "Title": "String"
       },
-    "return": "List<SongRecord>"     
+    "return": "List<SongRecord>",
+    "semantics": "Maybe"     
   },
   
   {
@@ -47,7 +62,8 @@
       "key": "String",
       "fragment": "String"
     },
-    "return": "String"  
+    "return": "String",
+    "semantics": "Maybe"  
   },
   
   {
@@ -57,7 +73,8 @@
     {
       "key": "String"
     },
-    "return": "Integer" 
+    "return": "Integer",
+    "semantics": "Maybe" 
   }
   
 ]

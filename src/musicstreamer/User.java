@@ -104,7 +104,7 @@ public class User //implements Serializable
         return json;
     }
     
-    public boolean saveUser() 
+    public Boolean saveUser() 
     {
         try{
             String userJson = this.toJson();
@@ -118,6 +118,15 @@ public class User //implements Serializable
             return false;
         }
         
+    }
+    
+    
+    @Override
+    public String toString()
+    {
+        Gson gson = new Gson();
+        String json = gson.toJson(this);
+        return json;
     }
 
 }

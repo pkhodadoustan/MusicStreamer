@@ -7,9 +7,11 @@
 package musicstreamer;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -114,6 +116,11 @@ public class SongManager {
     public List<SongRecord> findSongByArtist(String artist)
     {
         List<Integer> l = songArtistMap.get(artist);
+        if(l==null || l.size()==0)
+        {
+            System.out.println("Error! Artist not found!");
+            return null;
+        }
         List<SongRecord> records = new ArrayList<>();
         for(Integer i:l)
         {
@@ -164,9 +171,32 @@ public class SongManager {
         }
         return null;
     }
-    
+
+/*    
     public Boolean saveUser(User user)
     {
         return user.saveUser();
     }
+*/
+    public Boolean saveUser(String jsonUser)
+    {
+        Gson gson = new Gson();
+        JsonObject replyJsonObject = gson.fromJson(jsonUser, JsonObject.class);
+        System.out.println("In SongManager, Inflated json object is:"+replyJsonObject.toString());
+        String username = replyJsonObject.get("username").getAsString();
+        System.out.println("In SongManager, username: "+username);
+                
+        try
+        {
+            FileWriter writer = new FileWriter("data\\users\\"+username+".json");
+            writer.write(jsonUser);
+            writer.close();
+            return true;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+    }
+            
 }

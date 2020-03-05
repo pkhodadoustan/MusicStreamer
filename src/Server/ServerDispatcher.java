@@ -122,12 +122,15 @@ public class ServerDispatcher implements DispatcherInterface{
                     case "musicstreamer.SongRecord":
                         ret = method.invoke(object, parameter).toString();
                         break;
-                    case "java.util.List":
-                        
+                    case "java.util.List": 
                         ret = gson.toJson(method.invoke(object, parameter));
                         System.out.println("ret in ServerDispatcher: "+ret);
                         break;
                     case "musicstreamer.User":
+                        ret = gson.toJson(method.invoke(object, parameter));
+                        System.out.println("ret in ServerDispatcher: "+ret);
+                        break;
+                    case "java.lang.Boolean":
                         ret = gson.toJson(method.invoke(object, parameter));
                         System.out.println("ret in ServerDispatcher: "+ret);
                         break;
