@@ -66,13 +66,20 @@ public class ClientProxy{
                break;
            }
        }
-       
-       //send the request to server side through client communication module
-        String reply = cm.sendMessage(jsonMethod.toString());
-        //unmarshalling
-        JsonObject replyJsonObject = gson.fromJson(reply, JsonObject.class);
-        System.out.println("reply in sync:"+replyJsonObject.toString());
+       try
+       {
+            //send the request to server side through client communication module
+            String reply = cm.sendMessage(jsonMethod.toString());
+            //unmarshalling
+            JsonObject replyJsonObject = gson.fromJson(reply, JsonObject.class);
+            System.out.println("reply in sync:"+replyJsonObject.toString());
         
-       return replyJsonObject;
+            return replyJsonObject;
+       }
+       catch(Exception e)
+        {
+            System.out.println("Error! "+e.getMessage());
+            return null;
+        }
     }
 }

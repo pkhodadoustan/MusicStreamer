@@ -52,7 +52,7 @@ public class SongManager {
         {
             //if the song's artist is already stored in songArtistMap (as a key), add the song index to the value's list
             //else add the artist as a key and index as a value to the map
-            String artistKey = dataList.get(i).getArtist().getName();  //get the current artist name
+            String artistKey = dataList.get(i).getArtist().getName().toLowerCase();  //get the current artist name
             if(songArtistMap.containsKey(artistKey))//if the key exists
             {
                 List<Integer> indexList = songArtistMap.get(artistKey);//get the existing list (value) for the key
@@ -68,7 +68,7 @@ public class SongManager {
             
             //if the song title is already a key in songTitleMap, add the song index to the value's list
             //else add the song title as a key and index as a value to the map
-            String titleKey = dataList.get(i).getSong().getTitle(); //get the current song title
+            String titleKey = dataList.get(i).getSong().getTitle().toLowerCase(); //get the current song title
             if(songTitleMap.containsKey(titleKey))//if the key exists
             {
                 List<Integer> indexList = songTitleMap.get(titleKey);//get the existing list (value) for the key
@@ -115,13 +115,13 @@ public class SongManager {
      */
     public List<SongRecord> findSongByArtist(String artist)
     {
-        List<Integer> l = songArtistMap.get(artist);
+        List<Integer> l = songArtistMap.get(artist.toLowerCase());
+        List<SongRecord> records = new ArrayList<>();
         if(l==null || l.size()==0)
         {
             System.out.println("Error! Artist not found!");
-            return null;
+            return records;
         }
-        List<SongRecord> records = new ArrayList<>();
         for(Integer i:l)
         {
             records.add(dataList.get(i));
@@ -136,8 +136,13 @@ public class SongManager {
      */
     public List<SongRecord> findSongByTitle(String title)
     {
-        List<Integer> songIndexes = songTitleMap.get(title);
+        List<Integer> songIndexes = songTitleMap.get(title.toLowerCase());
         List<SongRecord> records = new ArrayList<>();
+        if(songIndexes==null || songIndexes.size()==0)
+        {
+            System.out.println("Error! Title not found!");
+            return records;
+        }
         for(Integer i:songIndexes)
         {
             records.add(dataList.get(i));
