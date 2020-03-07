@@ -613,8 +613,49 @@ public class UserWin extends javax.swing.JFrame {
     private void DeletFromPlaylistBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_DeletFromPlaylistBtnMouseClicked
         // TODO add your handling code here:
         int index = PlayListComboBox.getSelectedIndex();
+//        user.deletePlaylist(index);
+//        PlayListComboBox.removeItemAt(index);
+        //delete all items in combo box
+        PlayListComboBox.removeAllItems();
+        
+        //delete plalist from user
         user.deletePlaylist(index);
-        PlayListComboBox.removeItemAt(index);
+        
+        //delete UI playlist
+//        DefaultListModel<String> listOfFavoriteSongs = new DefaultListModel<>();
+//        playlist_UI.setModel(listOfFavoriteSongs); 
+
+        // update comboBox and playlist
+        try{
+            //Initialize combo box
+            for(int i  = 0; i<user.getPlayList().size(); i++)
+            {
+                PlayListComboBox.addItem("play List " + i );
+            }
+            
+            //initialize user playlist to content of playList 0 (index = 0) of the user if exists.
+            //String list of title + srtist name + id of user favorite playlist
+            DefaultListModel<String> listOfFavoriteSongs = new DefaultListModel<>();
+            
+            if(user.getPlayList().size()>0)
+            {
+                for(int i = 0; i<user.getPlayList().get(0).size(); i++)
+                {
+                    JsonObject jsonSong = proxy.synchExecution("findSongById", user.getPlayList().get(0).get(i));
+                    System.out.println("button clicked: "+jsonSong.toString());
+                    SongRecord songRcord = gson.fromJson(jsonSong.get("ret").getAsString(), SongRecord.class);
+                    listOfFavoriteSongs.addElement(songRcord.getSong().getTitle()+ " _ " +
+                        songRcord.getArtist().getName()+" _ "+
+                        songRcord.getSong().getId());
+                }
+            }
+            
+            playlist_UI.setModel(listOfFavoriteSongs);
+        }
+        catch(Exception e)
+        {
+            System.out.println(e.getMessage());
+        }
     }//GEN-LAST:event_DeletFromPlaylistBtnMouseClicked
 
     private void PlayListComboBoxMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_PlayListComboBoxMouseClicked
@@ -626,7 +667,8 @@ public class UserWin extends javax.swing.JFrame {
         //update the content of playList UI based on the current selected item of combobox
         
         int currentItemIndex = PlayListComboBox.getSelectedIndex();
-        
+        if(currentItemIndex<0)//if comboBox items are deleted, the above would return -1
+            return; 
         //create a model for update/show
         DefaultListModel<String> listOfFavoriteSongs = new DefaultListModel<>();
         
