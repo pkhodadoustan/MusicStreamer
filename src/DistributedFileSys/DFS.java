@@ -71,7 +71,7 @@ public class DFS {
     int port;
     Chord  chord;
     
-    private long md5(String objectName)
+    public long md5(String objectName)
     {
         try
         {
@@ -104,6 +104,21 @@ public class DFS {
     {
         chord.joinRing(Ip, port);
     }
+
+    public int getPort() {
+        return port;
+    }
+
+    public Chord getChord() {
+        return chord;
+    }
+    
+        public void createMetadata() throws FileNotFoundException, IOException
+    {
+        String metadataStr = "[]";
+        FileStream fileStream = new FileStream(metadataStr.getBytes());
+        writeMetaData(fileStream);
+    }
     
     public String readMetaData() throws Exception //gets the content of Metadata file from the peer that has it
     {
@@ -122,22 +137,28 @@ public class DFS {
         return metadataStr;
     }
     
-    public void writeMetaData(InputStream stream) throws Exception //updates the content of Metadata file 
+    public void writeMetaData(InputStream stream) throws RemoteException, IOException //updates the content of Metadata file 
     {
-        //JsonParser jsonParser = null;
         long guid = md5(METADATA_KEY);
         ChordMessageInterface peer = chord.locateSuccessor(guid);
         peer.put(guid, stream);
     }
-   
-    public void mv(String oldName, String newName) throws Exception
+    
+    public DistributedFile[] getMetadataFiles() throws Exception
     {
-        // TODO:  Change the name in Metadata
         String metadataStr = readMetaData();
-        //convert the string content of metadata to list of file objects
         Gson gson = new Gson();
         DistributedFile[] files = gson.fromJson(metadataStr, DistributedFile[].class);
-        //find and rename the file
+        return files;
+    }
+   
+    /* modifies  a file name in metadata.json*/
+    public void mv(String oldName, String newName) throws Exception
+    {
+        String metadataStr = readMetaData();
+        Gson gson = new Gson();
+        DistributedFile[] files = gson.fromJson(metadataStr, DistributedFile[].class);
+        /*find and rename the file in metadata*/
         for(DistributedFile file : files)
         {
             if(file.getFilename().equals(oldName))
@@ -146,211 +167,191 @@ public class DFS {
                break;
             }
         }
-        metadataStr = gson.toJson(files); //updated content of metadata
-        System.out.println("updated metadata: " + metadataStr);
-        // Write Metadata
-        FileStream fileStream = new FileStream(metadataStr.getBytes());
-        writeMetaData(fileStream);
-        
-        //find file on Chord
-        long guidObj =  md5(oldName);
-        long newGuidObj = md5(newName);
-        ChordMessageInterface peer = chord.locateSuccessor(guidObj);
-        File file = new File("./"+peer.getId()+"/repository/" + guidObj);
-        file.renameTo(new File ("./"+peer.getId()+"/repository/" + newGuidObj));
-        
+        /* write metdata with modified file name */
+        metadataStr = gson.toJson(files); 
+        writeMetaData(new FileStream(metadataStr.getBytes()));
     }
 
-    
+    /* lists file names in metadata.json*/
     public String ls() throws Exception
     {
-        // TODO: returns all the files in the Metadata
         String listOfFiles = "";
-        //get the string content of metadata
         String metadataStr = readMetaData();
-        //convert the string content of metadata to list of file objects
         Gson gson = new Gson();
         DistributedFile[] files = gson.fromJson(metadataStr, DistributedFile[].class);
-        //get the filenames from each file in list of files
+        /*get string format if each file in metadata */
         for(DistributedFile f : files)
-            listOfFiles = listOfFiles + f.getFilename()+"\n";
+            listOfFiles = listOfFiles + f.toString()+"\n";
         return listOfFiles;
     }
-
     
+    /* Create the file fileName by adding a new entry to the Metadata */
     public void touch(String fileName) throws Exception
     {
-        // TODO: Create the file fileName by adding a new entry to the Metadata
         String metadataStr = readMetaData();
-        //convert the string content of metadata to list of file objects
         Gson gson = new Gson();
         DistributedFile[] files = gson.fromJson(metadataStr, DistributedFile[].class);
         
-        //make new file
-        DistributedFile newFile = new DistributedFile(fileName);
-        
-        //add a file to array of files
+        /* make and add a new file to files array */
         List<DistributedFile> filesList = new ArrayList<>(Arrays.asList(files));
-        filesList.add(newFile);
+        filesList.add(new DistributedFile(fileName));
         files = filesList.toArray(new DistributedFile[filesList.size()]);
         
-        //Write Metadata
+        /* Write the update content including new file to Metadata*/
         String updatedContent = gson.toJson(files);
         FileStream fileStream = new FileStream(updatedContent.getBytes());
         writeMetaData(fileStream);
-        
-        //append newFile to Chord
-        long guidObj = md5(fileName);
-        ChordMessageInterface peer = chord.locateSuccessor(guidObj);
-        peer.put(guidObj, fileStream);
-        
-    }
-    public void delete(String fileName) throws Exception
-    {
-        //delete file from Chord
-        long guidObj = md5(fileName);
-        //locate the peer that has the file with guidObj on it
-        ChordMessageInterface peer = chord.locateSuccessor(guidObj); 
-        //delete the file on the peer
-        peer.delete(guidObj); 
-        
-        // delete Metadata.filename
-         String metadataStr = readMetaData();
-         
-        //convert the string content of metadata to list of file objects
-        Gson gson = new Gson();
-        DistributedFile[] files = gson.fromJson(metadataStr, DistributedFile[].class);
-       // DistributedFile[] updatedFiles = new DistributedFile[files.length];
-        
-        //delete the file with filename from the array
-        List<DistributedFile> updatedFilesList = new ArrayList(Arrays.asList(files));
-        for(int i = 0; i<updatedFilesList.size(); i++)
-        {
-            if(updatedFilesList.get(i).getFilename().equals(fileName))
-            {
-                updatedFilesList.remove(i);
-                break;
-            }
-        }
-        DistributedFile[] updatedFiles = updatedFilesList.toArray(new DistributedFile[updatedFilesList.size()]);
-        
-        // Write Metadata
-        String updatedContent = gson.toJson(updatedFiles);
-        FileStream fileStream = new FileStream(updatedContent.getBytes());
-        try {
-            writeMetaData(fileStream);
-        }
-        catch (Exception e) {
-            System.out.println("Error in DFS.delete. Could not write to metadata.json. " + e);
-        }
-        
     }
     
-    public byte[] read(String fileName, int pageNumber) throws Exception
+    /* a file is a an abstract category on metadata file that contains list of pages
+     * a page is a local file that is uploaded to the Chord
+     */
+    public void append(String pagePath, String PageName, String fileName) throws Exception
     {
-        // TODO: read pageNumber from fileName
-        int maxPageSize = 1024;
-        long guidObj = md5(fileName);
-        //locate the peer that has the file with guidObj on it
-        ChordMessageInterface peer = chord.locateSuccessor(guidObj); 
-        InputStream fileraw = peer.get(guidObj);
-        //byte[] fileBytes = new byte[1024];
-        byte[] pageBytes = new byte[maxPageSize];
-        int pos = 0;
-        int i = 0;
-        while(fileraw.available()>0 && i<maxPageSize)
-        {
-            byte readByte = (byte)fileraw.read();
-            
-            if(pos >= (maxPageSize*(pageNumber-1)))
-            {
-              pageBytes[i] = readByte;
-              i++;
-            }
-            pos++;
-        }
-        return pageBytes;
-    }
-    
-    public byte[] tail(String fileName) throws Exception
-    {
-        // TODO: return the last page of the fileName
+      /* Adding the page (local file) to a peer on Chord*/   
+        /*getting guid for the file using hash function MD5, and filename as key*/
+        long guid = md5(PageName);
+        /*reading the content of the local file into inputStream to be used as a page*/
+        FileStream inputFileStream = new FileStream(pagePath+PageName);
+        /*append the file to successor peer of the page guid on Chord*/
+        ChordMessageInterface peer = chord.locateSuccessor(guid);
+        peer.put(guid, inputFileStream);
+        
+      /* Adding the file and page information to the metadata*/
+        /* Getting json-formatted string of metadata*/
         String metadataStr = readMetaData();
-        //convert the string content of metadata to list of file objects
+        /* convert the string content of metadata to list of DistributedFile objects*/
         Gson gson = new Gson();
         DistributedFile[] files = gson.fromJson(metadataStr, DistributedFile[].class);
-        
-        long fileSize = 0;
+        /* if the file already exists find and append the page information to it */
+        boolean fileFound = false;
         for(DistributedFile file : files)
         {
             if(file.getFilename().equals(fileName))
             {
-               fileSize = file.getSize();
+               file.addPage(new Page(guid, file.getNumberOfPages()+1, inputFileStream.getSize()));
+               fileFound = true;
                break;
             }
         }
-        int tailNumber = (int)(fileSize/1024) + 1;
+        /* if the file does not exist, add a new file with appended page */
+        if(!fileFound)
+        {
+            DistributedFile newFile = new DistributedFile(fileName, 0, new ArrayList<Page>());
+            newFile.addPage(new Page(guid, newFile.getNumberOfPages()+1, inputFileStream.getSize()));
+            List<DistributedFile> filesList = new ArrayList<>(Arrays.asList(files));
+            filesList.add(newFile);
+            files = filesList.toArray(new DistributedFile[filesList.size()]);
+        }
+        inputFileStream.close();
         
-        return read(fileName, tailNumber);
+        /* Write updated array of files to metadata */
+        String updatedContent = gson.toJson(files);
+        FileStream fileStream = new FileStream(updatedContent.getBytes());
+        writeMetaData(fileStream);
+        fileStream.close();
     }
+    
+    public void delete(String fileName) throws Exception
+    {
+        String metadataStr = readMetaData();
+        Gson gson = new Gson();
+        DistributedFile[] files = gson.fromJson(metadataStr, DistributedFile[].class);
+        
+        /* delete all pages of a file from Chord */
+        List<DistributedFile> filesList = new ArrayList<>(Arrays.asList(files));
+        for(DistributedFile file : filesList)
+        {
+            if(file.getFilename().equals(fileName))
+            {
+                for(Page page: file.getPages())
+                {
+                    ChordMessageInterface peer = chord.locateSuccessor(page.getGuid());
+                    peer.delete(page.getGuid());
+                }
+                /* delete file from metadata.json*/
+                filesList.remove(file);
+                break;
+            }
+        }
+        
+        /*write updated content to metadata.json*/
+        files = filesList.toArray(new DistributedFile[filesList.size()]);
+        String updatedContent = gson.toJson(files);
+        FileStream fileStream = new FileStream(updatedContent.getBytes());
+        writeMetaData(fileStream);   
+    }
+    
+    public String readFile(String filename) throws RemoteException, IOException
+    {
+        long guid = md5(filename);
+        ChordMessageInterface peer = chord.locateSuccessor(guid);
+        InputStream fileRaw = peer.get(guid);
+        byte[] fileBytes = new byte[fileRaw.available()];
+        int i = 0;
+        while(fileRaw.available()>0)
+        {
+            fileBytes[i] = (byte)fileRaw.read();
+            i++;
+        }
+        String fileStr = new String(fileBytes);
+        return fileStr;
+    }
+    
+    /*reads page content (in bytes)& returns a byte array of the content of the page */
+    public byte[] read(String fileName, int pageNumber) throws Exception
+    {
+        DistributedFile[] files = getMetadataFiles();
+        for(DistributedFile file : files)
+        {
+            if(file.getFilename().equals(fileName) && pageNumber<=file.getNumberOfPages())
+            {
+                long guid = file.getPages().get(pageNumber-1).getGuid();
+                ChordMessageInterface peer = chord.locateSuccessor(guid);
+                InputStream pageContent = peer.get(guid);
+                byte[] pageBytes = new byte[pageContent.available()];
+                int i = 0;
+                while(pageContent.available()>0)
+                {
+                    pageBytes[i] = (byte)pageContent.read();
+                    i++;
+                }
+                return pageBytes;
+            }
+        }
+        return (new byte[0]);     
+    }
+    
+    /* return the last page of the fileName */
+    public byte[] tail(String fileName) throws Exception
+    {
+        DistributedFile[] files = getMetadataFiles();
+        for(DistributedFile file : files)
+        {
+            if(file.getFilename().equals(fileName))
+            {
+                long guid = file.getPages().get(file.getNumberOfPages()-1).getGuid();
+                ChordMessageInterface peer = chord.locateSuccessor(guid);
+                InputStream pageContent = peer.get(guid);
+                byte[] pageBytes = new byte[pageContent.available()];
+                int i = 0;
+                while(pageContent.available()>0)
+                {
+                    pageBytes[i] = (byte)pageContent.read();
+                    i++;
+                }
+                return pageBytes;
+            }
+        }
+        return (new byte[0]); 
+    }
+    
+    /* return the first page of the fileName */
     public byte[] head(String fileName) throws Exception
     {
-        // TODO: return the first page of the fileName
         return read(fileName, 1);
     }
-    public void append(String filePath, String fileName) throws Exception
-    {
-        // TODO: append data to fileName. If it is needed, add a new page.
-        // Let guid be the last page in Metadata.filename
-        
-        //getting guid for the file using hash function MD5, and filename as key
-        long guid = md5(fileName); 
-        //reading the content of the file into inputStream
-        //locate the file on peer local disk
-        //append the file to peer's Chord repository
-        // inputStream = new FileInputStream(file);
-        FileStream InputFileStream = new FileStream(filePath+fileName);
-        ChordMessageInterface peer = chord.locateSuccessor(guid);
-        peer.put(guid, InputFileStream);
-       
-        //adding the informatioin of new file to metadata
-        if(guid!=md5(METADATA_KEY))
-        {
-            //Creating file json object to be stored in metadata.jsin 
-            long size = new File(filePath+fileName).length();
-            JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
-            jsonBuilder.add("filename", fileName);
-            jsonBuilder.add("numberOfPages", (size/1024)+1);
-            jsonBuilder.add("pageSize", "1024");
-            jsonBuilder.add("size", size);
-
-            JsonObject fileJs = jsonBuilder.build();
-            String fileJsStr = fileJs.toString();
-            
-            //reading metadata into a string
-            String metadataStr = readMetaData();
-            
-            //appending the new string to string comtent of metadata
-            String metadataStrWithFile = metadataStr.substring(0, metadataStr.length()-1) +"\n,"+ fileJsStr+ metadataStr.substring(metadataStr.length()-1, metadataStr.length());   
-            //deleting the first comma if first record
-            if(metadataStr.equals("[]"))
-            {
-               metadataStrWithFile = metadataStrWithFile.substring(0, 2) + metadataStrWithFile.substring(3, metadataStrWithFile.length()); 
-            }
-            
-            //Reading the file json string to InputStream as sequence of bytes
-            FileStream fileStream = new FileStream(metadataStrWithFile.getBytes());
-
-            //Write the file info to Metadatas 
-            try {
-                writeMetaData(fileStream);
-            }
-            catch (Exception e) {
-                System.out.println("Error in DFS.append. Could not write to metadata.json. " + e);
-            }
-
-        }
-    }
+    
     public void peerPrint()
     {
         try {

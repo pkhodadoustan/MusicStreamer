@@ -16,20 +16,16 @@ import java.util.List;
 public class DistributedFile implements Serializable{
     String filename;
     int numberOfPages;
-    int pageSize; //max size of each page in file
-    long size; // file size
     List<Page> pages;
 
-    public DistributedFile(String filename, int numberOfPages, int pageSize, long size, ArrayList<Page> pages) {
+    public DistributedFile(String filename, int numberOfPages, ArrayList<Page> pages) {
         this.filename = filename;
         this.numberOfPages = numberOfPages;
-        this.pageSize = pageSize;
-        this.size = size;
         this.pages = pages;
     }
     
     public DistributedFile(String filename) {
-        this(filename, 0, 1024, 0, new ArrayList<Page>());
+        this(filename, 0, new ArrayList<Page>());
     }
 
     public String getFilename() {
@@ -48,22 +44,6 @@ public class DistributedFile implements Serializable{
         this.numberOfPages = numberOfPages;
     }
 
-    public int getPageSize() {
-        return pageSize;
-    }
-
-    public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
-    }
-
-    public long getSize() {
-        return size;
-    }
-
-    public void setSize(long size) {
-        this.size = size;
-    }
-
     public List<Page> getPages() {
         return pages;
     }
@@ -72,11 +52,22 @@ public class DistributedFile implements Serializable{
         this.pages = pages;
     }
     
+    void addPage(Page page)
+    {
+        pages.add(page);
+        numberOfPages++;
+    }
     
     @Override
     public String toString()
     {
-        return "filename: " + filename + "\nnumberOfPages:  " + numberOfPages + "\npageSize: " + pageSize + "\nsize: " + size;
+        String fileStr = " filename: " + filename + '\n' + " number Of Pages:  " + numberOfPages+ '\n' + " Pages: {\n";
+        for(Page p: pages)
+        {
+            fileStr  = fileStr + p.toString();
+        }
+        fileStr = fileStr + " }\n";
+        return fileStr;
     }
     
 }

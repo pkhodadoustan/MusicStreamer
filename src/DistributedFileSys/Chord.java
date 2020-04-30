@@ -264,6 +264,16 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
       }
     }
     
+    long getSuccessorId() throws RemoteException
+    {
+        return successor.getId();
+    }
+    
+    long gerPredecessorId() throws RemoteException
+    {
+        return predecessor.getId();
+    }
+    
     void Print()
     {   
         int i;

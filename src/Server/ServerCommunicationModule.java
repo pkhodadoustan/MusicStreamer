@@ -9,6 +9,7 @@ package Server;
  *
  * @author 018639476
  */
+import DistributedFileSys.DFS;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -35,9 +36,14 @@ public class ServerCommunicationModule extends Thread{
     SongManager songManager;
     SongDispatcher songDispatcher;
     
-    public ServerCommunicationModule() throws SocketException, FileNotFoundException {
+    public ServerCommunicationModule() throws SocketException, FileNotFoundException, Exception {
         socket = new DatagramSocket(4445); //the number of server socket should be determined, unlike client that can be any arbitrary socket
-        songManager = new SongManager();
+        System.out.println("Before SongManager Created on Server-Side");
+        //server joining port. infat SongManager has a dfs object for accessing data on distributed file system 
+        DFS dfs = new DFS(1999);
+        dfs.join("127.0.0.1", 2000);
+        songManager = new SongManager(dfs);
+        System.out.println("After SongManager Created on Server-Side");
         songDispatcher = new SongDispatcher();
         
         //adding object of remote mthods and its name as called in client json request to serverDispatcher

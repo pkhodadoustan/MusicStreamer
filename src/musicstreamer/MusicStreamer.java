@@ -31,7 +31,7 @@ public class MusicStreamer {
      */
     public static void main(String[] args) {
         try {
-            CommandLine.main(args);
+            CommandLine.run(args);
         } catch (Exception ex) {
             Logger.getLogger(MusicStreamer.class.getName()).log(Level.SEVERE, null, ex);
         }

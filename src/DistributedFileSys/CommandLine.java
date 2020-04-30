@@ -14,9 +14,13 @@ import java.util.logging.Logger;
  * @author 018639476
  */
 public class CommandLine {
-    final String METADATA_KEY = "metadata.json";
     final String LOCAL_PATH = "D:\\compSci\\CSULB\\Spring2020\\CECS327\\MusicStreamer\\Data\\";
     DFS dfs;
+
+    public DFS getDfs() {
+        return dfs;
+    }
+    
     public CommandLine(int selfPort, int joinPort) throws Exception {
         dfs = new DFS(selfPort);
         if(joinPort>0 && selfPort>0)
@@ -24,35 +28,13 @@ public class CommandLine {
           dfs.join("127.0.0.1", joinPort);
           dfs.peerPrint();
           TimeUnit.SECONDS.sleep(1);//to give it time to set up predecessor and successor
-          //if first peer on chord -> create metdata
-          if(dfs.chord.getPredecessor()==null) //or you could check if successor == self, and you don't need sleep(1) anymore.
+          /*if first peer on chord then create metdata */
+          if(dfs.getChord().getId()==dfs.getChord().getSuccessorId()) //dfs.chord.getPredecessor()==null
           {
-            //For the first peer on Chord
-            //creat empty metada.json file on peers' local disk
-            //append the file from local disk to peer's Chord repository.
             System.out.println("Metadata being created ...");
-            FileWriter myWriter = new FileWriter(LOCAL_PATH+METADATA_KEY);
-        /*    myWriter.write("{\n" +
-                       "\"metadata\":\n" +
-                       "[\n" +
-                       "]\n" + 
-                       "}\n");
-        */
-            //Initialize metadata with an empty list of files
-            myWriter.write("[]");
-            myWriter.close();
-              
-            //append metada.json from local disk to Chord repository 
-            dfs.append(LOCAL_PATH, METADATA_KEY);
-            
-            //delete the metadata.json from local disk of the peer
-            File metadataLocal = new File(LOCAL_PATH+METADATA_KEY);
-            metadataLocal.delete();
+            dfs.createMetadata();
           }
         }
-        cmdUserInterface();
-            // User interface:
-            // join, ls, touch, delete, read, tail, head, append, move
     }
     
     public void cmdUserInterface() {
@@ -68,10 +50,14 @@ public class CommandLine {
                     System.out.println(dfs.ls());
                 if(option.equals("append"))
                 {
-                    System.out.println("Enter file name to append to DFS: ");
-                    String filename = bufferReader.readLine();
+                    System.out.println("Enter file name : ");
+                    String fileName = bufferReader.readLine();
+                    
+                    System.out.println("Enter page name : ");
+                    String pageName = bufferReader.readLine();
+                    
                     try{
-                        dfs.append(LOCAL_PATH, filename);
+                        dfs.append(LOCAL_PATH, pageName,fileName );
                     }
                     catch(FileNotFoundException ex)
                     {
@@ -116,11 +102,6 @@ public class CommandLine {
                     String tail = new String(dfs.tail(filename));
                     System.out.println("Bytes in the tail of the file "+filename+": \n"+tail);
                 }
-                if(option.equals("metadata"))
-                {
-                    System.out.println("metadata: ");
-                    System.out.println(dfs.readMetaData());
-                }
                 if(option.equals("touch"))
                 {
                     System.out.println("Enter file name to be created: ");
@@ -138,15 +119,15 @@ public class CommandLine {
     
     public void printUserMenu() {
         System.out.println("Select from the option below: ");
-        System.out.println("print\n"+"ls\n"+"read\n"+"head\n"+"tail\n"+"append\n"+"delete\n"+"metadata\n"+"mv\n"+"touch\n"+"end\n");
+        System.out.println("print\n"+"ls\n"+"read\n"+"head\n"+"tail\n"+"append\n"+"delete\n"+"mv\n"+"touch\n"+"end\n");
     }
     
-    static public void main(String args[]) throws Exception
+    static public void run(String args[]) throws Exception
     {
         if (args.length < 2 ) {
             throw new IllegalArgumentException("Parameter: <port>");
         }
         CommandLine commandLine=new CommandLine( Integer.parseInt(args[0]), Integer.parseInt(args[1]));
-        
+        commandLine.cmdUserInterface();
      } 
 }

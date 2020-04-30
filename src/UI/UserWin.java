@@ -31,6 +31,7 @@ class MyPlayer implements Runnable
     Player player;
     ClientProxy proxy;
     
+    //to make the remote invokation -> Userwindow uses -> proxy uses -> communication modul contacts -> server communication module uses -> server dispatcher -> has songManager & songDistaptcher as registered object
     public MyPlayer(String songRecordId, ClientProxy proxy) {
         InputStream in = null;
         try {

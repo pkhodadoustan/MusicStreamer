@@ -6,87 +6,101 @@
  */
 package musicstreamer;
 
+import DistributedFileSys.ChordMessageInterface;
+import DistributedFileSys.CommandLine;
+import DistributedFileSys.DFS;
+import DistributedFileSys.DistributedFile;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.InputStream;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  *
- * @author 018639476
- * @author 015429789
+ * @author Pardis Khodadoustan
  */
 public class SongManager {
     List<SongRecord> dataList; //contains the list of all song-records
     HashMap <String, List<Integer>> songArtistMap; //maps the name of an artist (key) to the list of song-records' indexes by that artist (value).
     HashMap <String, List<Integer>> songTitleMap; //maps the title of a song (key) to a list of indexes that correspond to song-records in dataList with that name (value).
     HashMap <String, Integer> songIdMap;
+    DFS dfs;
     
-    public SongManager() throws FileNotFoundException
+    public SongManager(DFS dfs) throws Exception
     {
+        this.dfs = dfs;
+        //join DFS/chord by theses default ports 
         //reading from .json file and converting a list of json strings to a list of java objects using Gson. 
-        Gson gson = new Gson();
-        JsonReader reader = new JsonReader(new FileReader("data\\music.json"));
-        SongRecord[] data = gson.fromJson(reader, SongRecord[].class);
-        dataList = Arrays.asList(data);
-        
-        //creating the map <artist-name, song-record-index-list>
-        //indeces are based on location of each songRecord in List<SongRecord> dataList
-        songArtistMap = new HashMap<>();
-        
-        //creating the map <song-title, song-record-index-list>
-        //indeces are based on location of each songRecord in List<SongRecord> dataList
-        songTitleMap = new HashMap<>();
-        
-        //creating the map <id, song-record>
-        //each song has a unique id, each id is hashed for each song
-        songIdMap = new HashMap<>();
-        
-        //iterate through the list of songs imported from music.json then place them in songArtistMap and songTitleMap
-        for(int i = 0; i<dataList.size(); i++)
+        try
         {
-            //if the song's artist is already stored in songArtistMap (as a key), add the song index to the value's list
-            //else add the artist as a key and index as a value to the map
-            String artistKey = dataList.get(i).getArtist().getName().toLowerCase();  //get the current artist name
-            if(songArtistMap.containsKey(artistKey))//if the key exists
+            Gson gson = new Gson();
+            JsonReader reader = new JsonReader(new FileReader("data\\music.json"));
+            SongRecord[] data = gson.fromJson(reader, SongRecord[].class);
+            dataList = Arrays.asList(data);
+
+            //creating the map <artist-name, song-record-index-list>
+            //indeces are based on location of each songRecord in List<SongRecord> dataList
+            songArtistMap = new HashMap<>();
+
+            //creating the map <song-title, song-record-index-list>
+            //indeces are based on location of each songRecord in List<SongRecord> dataList
+            songTitleMap = new HashMap<>();
+
+            //creating the map <id, song-record>
+            //each song has a unique id, each id is hashed for each song
+            songIdMap = new HashMap<>();
+
+            //iterate through the list of songs imported from music.json then place them in songArtistMap and songTitleMap
+            for(int i = 0; i<dataList.size(); i++)
             {
-                List<Integer> indexList = songArtistMap.get(artistKey);//get the existing list (value) for the key
-                indexList.add(i);//append i to existing list
-                songArtistMap.put(artistKey, indexList);//replace the old list with updated list for the key in the map
+                //if the song's artist is already stored in songArtistMap (as a key), add the song index to the value's list
+                //else add the artist as a key and index as a value to the map
+                String artistKey = dataList.get(i).getArtist().getName().toLowerCase();  //get the current artist name
+                if(songArtistMap.containsKey(artistKey))//if the key exists
+                {
+                    List<Integer> indexList = songArtistMap.get(artistKey);//get the existing list (value) for the key
+                    indexList.add(i);//append i to existing list
+                    songArtistMap.put(artistKey, indexList);//replace the old list with updated list for the key in the map
+                }
+                else //if key does not exist
+                {
+                    List<Integer> indexList = new ArrayList<>(); //make a new list for the key
+                    indexList.add(i); //add the index to the list
+                    songArtistMap.put(artistKey, indexList); //add the key and list (value) to the map
+                }
+
+                //if the song title is already a key in songTitleMap, add the song index to the value's list
+                //else add the song title as a key and index as a value to the map
+                String titleKey = dataList.get(i).getSong().getTitle().toLowerCase(); //get the current song title
+                if(songTitleMap.containsKey(titleKey))//if the key exists
+                {
+                    List<Integer> indexList = songTitleMap.get(titleKey);//get the existing list (value) for the key
+                    indexList.add(i);//append i to existing list
+                    songTitleMap.put(titleKey, indexList);//replace the old list with updated list for the key in the map
+                }
+                else //if key does not exist
+                {
+                    List<Integer> indexList = new ArrayList<>(); //make a new list for the key
+                    indexList.add(i); //add the index to the list
+                    songTitleMap.put(titleKey, indexList); //add the key and list (value) to the map
+                }
+
+                String id = dataList.get(i).getSong().getId();  //get the current id
+                songIdMap.put(id, i);//add new song (because each song has a unique id
             }
-            else //if key does not exist
-            {
-                List<Integer> indexList = new ArrayList<>(); //make a new list for the key
-                indexList.add(i); //add the index to the list
-                songArtistMap.put(artistKey, indexList); //add the key and list (value) to the map
-            }
-            
-            //if the song title is already a key in songTitleMap, add the song index to the value's list
-            //else add the song title as a key and index as a value to the map
-            String titleKey = dataList.get(i).getSong().getTitle().toLowerCase(); //get the current song title
-            if(songTitleMap.containsKey(titleKey))//if the key exists
-            {
-                List<Integer> indexList = songTitleMap.get(titleKey);//get the existing list (value) for the key
-                indexList.add(i);//append i to existing list
-                songTitleMap.put(titleKey, indexList);//replace the old list with updated list for the key in the map
-            }
-            else //if key does not exist
-            {
-                List<Integer> indexList = new ArrayList<>(); //make a new list for the key
-                indexList.add(i); //add the index to the list
-                songTitleMap.put(titleKey, indexList); //add the key and list (value) to the map
-            }
-            
-            String id = dataList.get(i).getSong().getId();  //get the current id
-            songIdMap.put(id, i);//add new song (because each song has a unique id
-            
+        }
+        catch(Exception e)
+        {
+            System.out.println("Error finding local files. SongManager is only using to DFS.");
         }
     }
+    
 
     /**
      * Gets the HashMap of artists mapped to all their songs
@@ -115,13 +129,41 @@ public class SongManager {
      */
     public List<SongRecord> findSongByArtist(String artist)
     {
-        List<Integer> l = songArtistMap.get(artist.toLowerCase());
+        Gson gson = new Gson();
+        System.out.println("in findSongByArtist!");
         List<SongRecord> records = new ArrayList<>();
-        if(l==null || l.size()==0)
+        
+        //File not found locally
+        if(songArtistMap==null || songArtistMap.size()==0)//if local data not found -> search DFS
         {
-            System.out.println("Error! Artist not found!");
+            //searching for the song in Distributed File System 
+            try {
+                //read metadata.json
+                String strDfsFiles = dfs.ls();
+                String[] fileNames = strDfsFiles.split("\\r?\\n");
+                //System.out.println("first file found: " + fileNames[0]);
+                for(String fileName: fileNames)
+                {
+                    //read content of file
+                    String fileConetentStr = dfs.readFile(fileName);
+                    //look for records with artist
+                    SongRecord[] songRecords = gson.fromJson(fileConetentStr, SongRecord[].class);
+                    for(SongRecord s : songRecords)
+                    {
+                        if(s.artist.getName().equals(artist))
+                        {
+                            records.add(s);
+                        }
+                    }
+                }
+                
+            } catch (Exception ex) {
+                Logger.getLogger(SongManager.class.getName()).log(Level.SEVERE, null, ex);
+            }
             return records;
         }
+        //otherwise, search loaclly
+        List<Integer> l = songArtistMap.get(artist.toLowerCase());
         for(Integer i:l)
         {
             records.add(dataList.get(i));
