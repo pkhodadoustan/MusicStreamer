@@ -28,6 +28,9 @@ public class Server {
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             System.out.println("Error! Server could not run. "+ex.getMessage());
+        } catch (Exception ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("some error on server" + ex);
         }
     }
     

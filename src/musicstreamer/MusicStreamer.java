@@ -16,7 +16,9 @@ import javazoom.jl.player.*;
 import javazoom.jl.decoder.JavaLayerException;
 import UI.Login;
 import com.google.gson.JsonObject;
-
+import DistributedFileSys.CommandLine;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -28,7 +30,11 @@ public class MusicStreamer {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-
+        try {
+            CommandLine.run(args);
+        } catch (Exception ex) {
+            Logger.getLogger(MusicStreamer.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
        
 }
