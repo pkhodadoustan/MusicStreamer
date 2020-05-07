@@ -154,10 +154,8 @@ public class UserWin extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         songNameLabel = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        searchArtistTxt = new javax.swing.JTextField();
+        KeywordText = new javax.swing.JTextField();
         searchBtn = new javax.swing.JButton();
-        jLabel3 = new javax.swing.JLabel();
-        searchTitletxt = new javax.swing.JTextField();
         WarningText = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         SongList = new javax.swing.JList<>();
@@ -202,7 +200,7 @@ public class UserWin extends javax.swing.JFrame {
 
         songNameLabel.setText("-");
 
-        jLabel2.setText("Search Song by Artist");
+        jLabel2.setText("Search Songs");
 
         searchBtn.setText("Search");
         searchBtn.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -210,8 +208,6 @@ public class UserWin extends javax.swing.JFrame {
                 searchBtnMouseClicked(evt);
             }
         });
-
-        jLabel3.setText("Search Song by Title");
 
         WarningText.setText("-");
 
@@ -290,13 +286,8 @@ public class UserWin extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(searchArtistTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(searchTitletxt, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(32, 32, 32))))
+                        .addComponent(KeywordText, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(32, 32, 32))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
@@ -307,7 +298,6 @@ public class UserWin extends javax.swing.JFrame {
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(welcomeLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(jLabel2)
-                                    .addComponent(jLabel3)
                                     .addGroup(layout.createSequentialGroup()
                                         .addComponent(playBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -362,12 +352,8 @@ public class UserWin extends javax.swing.JFrame {
                         .addGap(31, 31, 31)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel2)
-                            .addComponent(searchArtistTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel3)
-                            .addComponent(searchTitletxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
+                            .addComponent(KeywordText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(62, 62, 62)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(searchBtn)
                             .addComponent(WarningText))
@@ -418,69 +404,30 @@ public class UserWin extends javax.swing.JFrame {
 
     private void searchBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_searchBtnMouseClicked
 
-        int selection;
-        // TODO add your handling code here:
-         //creating string variables for artistText and nameText
-        String artistText = searchArtistTxt.getText();
-        String titleText = searchTitletxt.getText();
-        selection = searchByArtistOrName(artistText, titleText);
+        String keyword = KeywordText.getText();
             
         while (true){
-            //if artist text is filled
-            if(selection == 1){
-                
-                String message = "Searching...";
-                WarningText.setText(message);
-                 // implement findsongby name
-                List <SongRecord> recordList;
-                try {
-                    //find a list of songs by artist name
-                    JsonObject jsonSongListByArtist = proxy.synchExecution("findSongByArtist", artistText);
-                    SongRecord[] SongListByArtistArr = gson.fromJson(jsonSongListByArtist.get("ret").getAsString(), SongRecord[].class);
-                    recordList = Arrays.asList(SongListByArtistArr);
-                    
-                    //for loop to generate multiple songs
-                    DefaultListModel<String> listOfSongs = new DefaultListModel<>();
-                    for(int i = 0; i < recordList.size(); i++){
-                        listOfSongs.addElement(recordList.get(i).getSong().getTitle()+" _ "+recordList.get(i).getSong().getId());
-                    }
-                    SongList.setModel(listOfSongs);
-                    break;
-                } catch (Exception ex) {
-                    Logger.getLogger(UserWin.class.getName()).log(Level.SEVERE, null, ex);
+            WarningText.setText("Searching...");
+             // implement findsongby name
+            List <SongRecord> recordList;
+            try {
+                //find a list of songs by artist name
+                JsonObject jsonSongListByArtist = proxy.synchExecution("findSongByKeyword", keyword);
+                SongRecord[] SongListByArtistArr = gson.fromJson(jsonSongListByArtist.get("ret").getAsString(), SongRecord[].class);
+                recordList = Arrays.asList(SongListByArtistArr);
+
+                //for loop to generate multiple songs
+                DefaultListModel<String> listOfSongs = new DefaultListModel<>();
+                for(int i = 0; i < recordList.size(); i++){
+                    listOfSongs.addElement(recordList.get(i).getSong().getTitle()+" _ "+recordList.get(i).getSong().getId());
                 }
-            }
-            //if name text is filled
-            else if(selection == 2){
-                String message = "Searching...";
-                WarningText.setText(message);
-                //implement findSongbyTitle
-                List <SongRecord> recordList;
-                try {
-                    //find a list of songs by title
-                    JsonObject jsonSongListByTitle = proxy.synchExecution("findSongByTitle", titleText);
-                    SongRecord[] SongListByTitleArr = gson.fromJson(jsonSongListByTitle.get("ret").getAsString(), SongRecord[].class);
-                    recordList = Arrays.asList(SongListByTitleArr);
-                    
-                    //for loop to generate multiple song
-                    //connect song to search
-                    DefaultListModel<String> listOfSongs = new DefaultListModel<>();
-                    for(int i = 0; i < recordList.size(); i++){
-                        listOfSongs.addElement(recordList.get(i).getSong().getTitle()+" _ "+recordList.get(i).getSong().getId());
-                    }
-                    SongList.setModel(listOfSongs);
-                    break;
-                } catch (Exception ex) {
-                    Logger.getLogger(UserWin.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            //if both fields are filled
-            else if(selection == 3){
-                String message = "Error! choose only one field.";
-                WarningText.setText(message);
+                SongList.setModel(listOfSongs);
                 break;
-            }
+            } catch (Exception ex) {
+                Logger.getLogger(UserWin.class.getName()).log(Level.SEVERE, null, ex);
+            } 
         }
+        WarningText.setText("");
     }//GEN-LAST:event_searchBtnMouseClicked
 
     private void playBtnActionPerformed(java.awt.event.ActionEvent evt) {                                        
@@ -735,6 +682,7 @@ public class UserWin extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton DeletFromPlaylistBtn;
+    private javax.swing.JTextField KeywordText;
     private javax.swing.JComboBox<String> PlayListComboBox;
     private javax.swing.JList<String> SongList;
     private javax.swing.JLabel WarningText;
@@ -743,7 +691,6 @@ public class UserWin extends javax.swing.JFrame {
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
@@ -757,9 +704,7 @@ public class UserWin extends javax.swing.JFrame {
     private javax.swing.JList<String> playlist_UI;
     private javax.swing.JLabel releaseNameLabel;
     private javax.swing.JButton savePlaylistBtn;
-    private javax.swing.JTextField searchArtistTxt;
     private javax.swing.JButton searchBtn;
-    private javax.swing.JTextField searchTitletxt;
     private javax.swing.JLabel songNameLabel;
     private javax.swing.JButton stopBtn;
     private javax.swing.JLabel termsLabel;

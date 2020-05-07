@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package DistributedFileSys;
+import com.google.gson.Gson;
 import java.rmi.*;
 import java.rmi.registry.*;
 import java.rmi.server.*;
@@ -12,10 +13,11 @@ import java.util.*;
 import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import musicstreamer.SongRecord;
 
 /**
  *
- * @author 018639476
+ * @authors Morale, Khodadoustan
  */
 public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordMessageInterface
 {
@@ -297,5 +299,35 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
 	       System.out.println("Cannot retrive id");
         }
     }
-    
+
+    /*
+    * Searches for the songs in a page that have the keyword in their title or artist name 
+    * returns a json string array of json string song records found in the page
+    */
+    @Override
+    public String searchPage(String keyword, long pageGuid) throws RemoteException {
+        List<SongRecord> resultsFound = new ArrayList<>();
+        FileStream fileStream = null;
+        Gson gson = new Gson();
+        try {
+            String path = "./"+guid+"/repository/"+pageGuid;
+            fileStream = new FileStream(path);
+            byte[] fileBytes = new byte[fileStream.available()];
+            int i = 0;
+            while(fileStream.available()>0) {
+                fileBytes[i++] = (byte)fileStream.read();
+            } 
+            String fileStr = new String(fileBytes);
+            SongRecord[] records = gson.fromJson(fileStr, SongRecord[].class);
+            for(SongRecord record: records)
+            {
+                if(record.getArtist().getName().toLowerCase().contains(keyword.toLowerCase()) || record.getSong().getTitle().toLowerCase().contains(keyword.toLowerCase())) {
+                    resultsFound.add(record);
+                }
+            }
+        } catch (IOException ex) {
+            throw(new RemoteException("IO exception in Chord:" + ex));
+        } 
+        return gson.toJson(resultsFound);
+    }
 }

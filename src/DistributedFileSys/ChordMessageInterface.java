@@ -6,6 +6,8 @@
 package DistributedFileSys;
 import java.rmi.*;
 import java.io.*;
+import java.util.List;
+import musicstreamer.SongRecord;
 /**
  *
  * @author 018639476
@@ -23,4 +25,5 @@ public interface ChordMessageInterface extends Remote{
     public void put(long guidObject, InputStream inputStream) throws IOException, RemoteException;
     public InputStream get(long guidObject) throws IOException, RemoteException;
     public void delete(long guidObject) throws IOException, RemoteException;
+    public String searchPage(String keyword, long pageGuid)throws RemoteException;
 }

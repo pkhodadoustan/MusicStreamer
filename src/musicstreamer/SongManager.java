@@ -11,7 +11,6 @@ import DistributedFileSys.CommandLine;
 import DistributedFileSys.DFS;
 import DistributedFileSys.DistributedFile;
 import DistributedFileSys.Page;
-import Server.searchDFS;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
@@ -30,100 +29,58 @@ import java.util.logging.Logger;
  */
 public class SongManager {
     DFS dfs;
+    List<SongRecord> songs;
     
     public SongManager(DFS dfs) throws Exception
     {
         this.dfs = dfs;
+        songs = new ArrayList<>();
     }
  
     /**
      * @param artist - String indicating the artist to search for
      * @return List of songs by the artist
      */
-    public List<SongRecord> findSongByArtist(String artist)
+    public List<SongRecord> findSongByKeyword(String keyword)
     {
-        List<SongRecord> songs = new ArrayList<>();
-        ExecutorService executor = Executors.newFixedThreadPool(10);
+        Gson gson = new Gson();
+        songs = new ArrayList<>();
         try {
-            DistributedFile[] files = dfs.getMetadataFiles();
-            for(DistributedFile file : files)
+            //songs = dfs.searchPeerSongs(artist);
+            List<String> results = dfs.searchPeerSongs(keyword);
+            for(String result: results)
             {
-                for(int i=1; i <= file.getNumberOfPages(); i++)
-                {
-                    searchDFS search = new searchDFS(i, file.getFilename(), dfs, artist, "", "", songs);
-	            executor.execute(search);
-                }
-                
+                List<SongRecord> foundSongs = new ArrayList<>(Arrays.asList(gson.fromJson(result, SongRecord[].class)));
+                songs.addAll(foundSongs);
             }
-            executor.shutdown();
-	    // Wait until all threads are finish
-            while (!executor.isTerminated()) {}
             
         } catch (Exception ex) {
             Logger.getLogger(SongManager.class.getName()).log(Level.SEVERE, null, ex);
         }
         return songs;
     }
+    
     
     /**
-     * @param title - String indicating the song title to search for
-     * @return List of songs with the song title
-     */
-    public List<SongRecord> findSongByTitle(String title)
-    {
-        List<SongRecord> songs = new ArrayList<>();
-        ExecutorService executor = Executors.newFixedThreadPool(10);
-        try {
-            DistributedFile[] files = dfs.getMetadataFiles();
-            for(DistributedFile file : files)
-            {
-                for(int i=1; i <= file.getNumberOfPages(); i++)
-                {
-                    searchDFS search = new searchDFS(i, file.getFilename(), dfs, "", title, "", songs);
-	            executor.execute(search);
-                }
-                
-            }
-            executor.shutdown();
-	    // Wait until all threads are finish
-            while (!executor.isTerminated()) {}
-            
-        } catch (Exception ex) {
-            Logger.getLogger(SongManager.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return songs;
-    }
-    
-        /**
      * 
      * @param id - String indicating the song title to search for
      * @return a song record with the song id
      */
     public SongRecord findSongById(String id)
     {
-        List<SongRecord> songs = new ArrayList<>();
-        ExecutorService executor = Executors.newFixedThreadPool(10);
-        try {
-            DistributedFile[] files = dfs.getMetadataFiles();
-            for(DistributedFile file : files)
+        SongRecord foundSong = null;
+        for(SongRecord song: songs)
+        {
+            if(song.getSong().getId().toLowerCase().equals(id.toLowerCase()))
             {
-                for(int i=1; i <= file.getNumberOfPages(); i++)
-                {
-                    searchDFS search = new searchDFS(i, file.getFilename(), dfs, "", "", id, songs);
-	            executor.execute(search);
-                }
-                
+                foundSong = song;
+                break;
             }
-            executor.shutdown();
-	    // Wait until all threads are finish
-            while (!executor.isTerminated()) {}
-            return songs.get(0);
-        } catch (Exception ex) {
-            Logger.getLogger(SongManager.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return null;
+        return foundSong;
     }
-    
+  
+    //The following are not communicating with Chord yet
     public User getUser (String username)
     {
         try {

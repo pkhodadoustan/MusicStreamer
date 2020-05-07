@@ -13,10 +13,13 @@ import java.io.*;
 import java.nio.file.*;
 import java.math.BigInteger;
 import java.security.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.json.*;
 import javax.json.stream.JsonParser;
+import musicstreamer.SongRecord;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -281,23 +284,7 @@ public class DFS {
         FileStream fileStream = new FileStream(updatedContent.getBytes());
         writeMetaData(fileStream);   
     }
-    
-    public String readFile(String filename) throws RemoteException, IOException
-    {
-        long guid = md5(filename);
-        ChordMessageInterface peer = chord.locateSuccessor(guid);
-        InputStream fileRaw = peer.get(guid);
-        byte[] fileBytes = new byte[fileRaw.available()];
-        int i = 0;
-        while(fileRaw.available()>0)
-        {
-            fileBytes[i] = (byte)fileRaw.read();
-            i++;
-        }
-        String fileStr = new String(fileBytes);
-        return fileStr;
-    }
-    
+
     /*reads page content (in bytes)& returns a byte array of the content of the page */
     public byte[] read(String fileName, int pageNumber) throws Exception
     {
@@ -350,6 +337,29 @@ public class DFS {
     public byte[] head(String fileName) throws Exception
     {
         return read(fileName, 1);
+    }
+    
+    public List<String> searchPeerSongs(String keyword) throws Exception
+    {
+        ExecutorService executor = Executors.newFixedThreadPool(10);
+        Gson gson = new Gson();
+        List<String> results = new ArrayList<>();
+        DistributedFile[] files = getMetadataFiles();
+        for(DistributedFile file : files)
+        {
+            for(int i=0; i <= file.getNumberOfPages()-1; i++)
+            {
+                long pageGuid = file.getPages().get(i).getGuid();
+                ChordMessageInterface peer = chord.locateSuccessor(pageGuid);
+                //starting a search thread for each page on a corresponding peer on Chord
+                PageSearchRunnable pageSearchThread = new PageSearchRunnable(peer, pageGuid, keyword, results);
+                executor.execute(pageSearchThread);
+            }
+        }
+        executor.shutdown();
+        // Wait until all threads are finish
+        while (!executor.isTerminated()) {}
+        return results;
     }
     
     public void peerPrint()

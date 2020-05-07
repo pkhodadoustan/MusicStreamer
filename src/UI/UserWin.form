@@ -35,16 +35,8 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="searchArtistTxt" min="-2" pref="244" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="1" attributes="0">
-                              <Component id="searchTitletxt" min="-2" pref="244" max="-2" attributes="0"/>
-                              <EmptySpace min="-2" pref="32" max="-2" attributes="0"/>
-                          </Group>
-                      </Group>
+                      <Component id="KeywordText" min="-2" pref="244" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="32" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
@@ -57,7 +49,6 @@
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Component id="welcomeLabel" min="-2" pref="210" max="-2" attributes="0"/>
                                   <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="jLabel3" alignment="0" min="-2" max="-2" attributes="0"/>
                                   <Group type="102" alignment="0" attributes="0">
                                       <Component id="playBtn" min="-2" pref="117" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
@@ -130,14 +121,9 @@
                       <EmptySpace min="-2" pref="31" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="searchArtistTxt" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="KeywordText" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="searchTitletxt" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="62" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="searchBtn" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="WarningText" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -232,10 +218,10 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel2">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Search Song by Artist"/>
+        <Property name="text" type="java.lang.String" value="Search Songs"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JTextField" name="searchArtistTxt">
+    <Component class="javax.swing.JTextField" name="KeywordText">
     </Component>
     <Component class="javax.swing.JButton" name="searchBtn">
       <Properties>
@@ -244,13 +230,6 @@
       <Events>
         <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="searchBtnMouseClicked"/>
       </Events>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel3">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Search Song by Title"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JTextField" name="searchTitletxt">
     </Component>
     <Component class="javax.swing.JLabel" name="WarningText">
       <Properties>
